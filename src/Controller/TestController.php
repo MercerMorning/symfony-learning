@@ -19,10 +19,10 @@ class TestController extends AbstractController
     #[Route('/test', name: 'app_test')]
     public function index(): JsonResponse
     {
-        $user = new User();
-        $user->setLogin('test_ex');
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+//        $user = new User();
+//        $user->setLogin('test_ex');
+//        $this->entityManager->persist($user);
+//        $this->entityManager->flush();
 
 //        $repository = $this->entityManager->getRepository(User::class);
 //        $user = $repository->find(1);
@@ -52,6 +52,9 @@ class TestController extends AbstractController
 //        $order = $repository->find(1);
 //        dd($order->toArray());
 
+
+        $repository = $this->entityManager->getRepository(UserProperty::class);
+        dd($repository->findByPropertyNameValue('name', 'Tommy'));
         return $this->json([
             'message' => 'Welcome to your new controller!',
             'path' => 'src/Controller/TestController.php',

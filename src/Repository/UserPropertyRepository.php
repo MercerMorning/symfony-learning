@@ -42,17 +42,16 @@ class UserPropertyRepository extends ServiceEntityRepository
 //    /**
 //     * @return UserProperty[] Returns an array of UserProperty objects
 //     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('u.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findByPropertyNameValue(string $name, string $value): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.name = :name')
+            ->setParameter('name', $name)
+            ->andWhere('u.value = :value')
+            ->setParameter('value', $value)
+            ->getQuery()
+            ->getResult();
+    }
 
 //    public function findOneBySomeField($value): ?UserProperty
 //    {

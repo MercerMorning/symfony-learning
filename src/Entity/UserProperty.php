@@ -9,6 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity(repositoryClass: UserPropertyRepository::class)]
 #[ORM\Index(columns: ['user_id'], name: 'user_property__user_id__ind')]
+#[ORM\Index(columns: ['name', 'value'], name: 'user_property__name_value__ind')]
 class UserProperty
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
