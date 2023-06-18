@@ -32,7 +32,6 @@ final class Version20230617151810 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('DROP INDEX IDX_F52993989395C3F3');
         $this->addSql('DROP INDEX order__customer_id__ind');
         $this->addSql('DROP INDEX user_property__user_id__ind');

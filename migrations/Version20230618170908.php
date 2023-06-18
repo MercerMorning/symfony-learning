@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20230617155205 extends AbstractMigration
+final class Version20230618170908 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,12 +20,12 @@ final class Version20230617155205 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE INDEX user_property__name_value__ind ON user_property (name, value)');
+        $this->addSql('ALTER TABLE "order" ALTER price TYPE NUMERIC(10, 0)');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('DROP INDEX user_property__name_value__ind');
+        $this->addSql('ALTER TABLE "order" ALTER price TYPE DOUBLE PRECISION');
     }
 }

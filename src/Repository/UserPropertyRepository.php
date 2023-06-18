@@ -21,27 +21,6 @@ class UserPropertyRepository extends ServiceEntityRepository
         parent::__construct($registry, UserProperty::class);
     }
 
-    public function save(UserProperty $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
-    public function remove(UserProperty $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
-//    /**
-//     * @return UserProperty[] Returns an array of UserProperty objects
-//     */
     public function findByPropertyNameValue(string $name, string $value): array
     {
         return $this->createQueryBuilder('u')
@@ -52,14 +31,4 @@ class UserPropertyRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
-//    public function findOneBySomeField($value): ?UserProperty
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

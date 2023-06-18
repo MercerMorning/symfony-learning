@@ -12,7 +12,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
 #[ORM\Index(columns: ['customer_id'], name: 'order__customer_id__ind')]
-#[ORM\Index(columns: ['executor_id'], name: 'order__customer_id__ind')]
+#[ORM\Index(columns: ['executor_id'], name: 'order__executor_id__ind')]
 class Order
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
@@ -20,11 +20,11 @@ class Order
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: 'User')]
+    #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'acquisitions')]
     #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'id')]
     private User $customer;
 
-    #[ORM\ManyToOne(targetEntity: 'User')]
+    #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'executions')]
     #[ORM\JoinColumn(name: 'executor_id', referencedColumnName: 'id')]
     private User $executor;
 
@@ -34,7 +34,7 @@ class Order
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     private int $status;
 
-    #[ORM\Column(type: Types::FLOAT, nullable: false)]
+    #[ORM\Column(type: Types::DECIMAL, nullable: false)]
     private float $price;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
