@@ -31,9 +31,9 @@ final class Version20230617151809 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE "order" DROP CONSTRAINT FK_F52993989395C3F3');
-        $this->addSql('ALTER TABLE "order" DROP CONSTRAINT FK_F52993988ABD09BB');
-        $this->addSql('ALTER TABLE user_property DROP CONSTRAINT FK_6B7FF8DEA76ED395');
+        $this->addSql('ALTER TABLE "order" DROP CONSTRAINT order__customer_id__fk');
+        $this->addSql('ALTER TABLE "order" DROP CONSTRAINT order__executor_id__fk');
+        $this->addSql('ALTER TABLE user_property DROP CONSTRAINT user_property__user_id__fk');
         $this->addSql('DROP TABLE "order"');
         $this->addSql('DROP TABLE "user"');
         $this->addSql('DROP TABLE user_property');
