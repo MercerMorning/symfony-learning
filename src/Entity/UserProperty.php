@@ -6,6 +6,7 @@ use App\Repository\UserPropertyRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JetBrains\PhpStorm\ArrayShape;
 
 #[ORM\Entity(repositoryClass: UserPropertyRepository::class)]
 #[ORM\Index(columns: ['user_id'], name: 'user_property__user_id__ind')]
@@ -106,5 +107,19 @@ class UserProperty
     public function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    #[ArrayShape([
+        'id' => 'int|null',
+        'name' => 'string',
+        'value' => 'string',
+    ])]
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'value' => $this->value
+        ];
     }
 }
