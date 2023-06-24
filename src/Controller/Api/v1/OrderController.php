@@ -3,9 +3,7 @@
 namespace App\Controller\Api\v1;
 
 use App\Entity\Order;
-use App\Entity\UserProperty;
 use App\Manager\OrderManager;
-use App\Manager\UserPropertyManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
