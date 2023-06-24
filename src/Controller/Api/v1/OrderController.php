@@ -46,7 +46,7 @@ class OrderController extends AbstractController
     }
 
     #[Route(path: '', methods: ['GET'])]
-    public function getUserPropertiesAction(Request $request): Response
+    public function getOrdersAction(Request $request): Response
     {
         $perPage = $request->request->get('perPage');
         $page = $request->request->get('page');
@@ -58,7 +58,7 @@ class OrderController extends AbstractController
 
     #[Route(path: '/{order_id}', requirements: ['order_id' => '\d+'], methods: ['DELETE'])]
     #[Entity('order', expr: 'repository.find(order_id)')]
-    public function deleteUserPropertyAction(Order $order): Response
+    public function deleteOrderAction(Order $order): Response
     {
         $result = $this->orderManager->deleteUserProperty($order);
 
@@ -66,7 +66,7 @@ class OrderController extends AbstractController
     }
 
     #[Route(path: '', methods: ['PATCH'])]
-    public function updateUserPropertyAction(Request $request): Response
+    public function updateOrderAction(Request $request): Response
     {
         $orderId = $request->query->get('orderId');
         $customerId = $request->request->get('customerId');
