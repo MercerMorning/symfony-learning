@@ -48,7 +48,7 @@ class UserPropertyController extends AbstractController
     }
 
     #[Route(path: '/{user_property_id}', requirements: ['user_property_id' => '\d+'], methods: ['DELETE'])]
-    #[Entity('user_property', expr: 'repository.find(user_property_id)')]
+    #[Entity('userProperty', expr: 'repository.find(user_property_id)')]
     public function deleteUserPropertyAction(UserProperty $userProperty): Response
     {
         $result = $this->userPropertyManager->deleteUserProperty($userProperty);
