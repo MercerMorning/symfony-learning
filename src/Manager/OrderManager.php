@@ -21,7 +21,7 @@ class OrderManager
         int $customerId,
         int $executorId,
         string $description,
-        string $status,
+        int $status,
         float $price
     ): ?int
     {
@@ -46,7 +46,7 @@ class OrderManager
         int $customerId,
         int $executorId,
         string $description,
-        string $status,
+        int $status,
         float $price
     ): bool
     {
