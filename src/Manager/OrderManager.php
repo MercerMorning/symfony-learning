@@ -59,10 +59,12 @@ class OrderManager
         }
         /** @var UserRepository $userRepository */
         $userRepository = $this->entityManager->getRepository(User::class);
+        /** @var OrderRepository\ $orderRepository */
+        $orderRepository = $this->entityManager->getRepository(Order::class);
         /** @var User $user */
         $customer = $userRepository->find($customerId);
         $executor = $userRepository->find($executorId);
-        $order = new Order();
+        $order = $orderRepository->find($orderId);
         $order->setCustomer($customer);
         $order->setExecutor($executor);
         $order->setDescription($description);
@@ -73,7 +75,7 @@ class OrderManager
         return true;
     }
 
-    public function deleteUserProperty(Order $order): bool
+    public function deleteOrder(Order $order): bool
     {
         $this->entityManager->remove($order);
         $this->entityManager->flush();

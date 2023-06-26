@@ -39,8 +39,8 @@ class UserPropertyController extends AbstractController
     #[Route(path: '', methods: ['GET'])]
     public function getUserPropertiesAction(Request $request): Response
     {
-        $perPage = $request->request->get('perPage');
-        $page = $request->request->get('page');
+        $perPage = $request->query->get('perPage');
+        $page = $request->query->get('page');
         $users = $this->userPropertyManager->getUserProperties($page ?? self::DEFAULT_PAGE, $perPage ?? self::DEFAULT_PER_PAGE);
         $code = empty($users) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 

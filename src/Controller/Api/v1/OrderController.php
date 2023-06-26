@@ -46,8 +46,8 @@ class OrderController extends AbstractController
     #[Route(path: '', methods: ['GET'])]
     public function getOrdersAction(Request $request): Response
     {
-        $perPage = $request->request->get('perPage');
-        $page = $request->request->get('page');
+        $perPage = $request->query->get('perPage');
+        $page = $request->query->get('page');
         $users = $this->orderManager->getOrders($page ?? self::DEFAULT_PAGE, $perPage ?? self::DEFAULT_PER_PAGE);
         $code = empty($users) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
@@ -58,7 +58,7 @@ class OrderController extends AbstractController
     #[Entity('order', expr: 'repository.find(order_id)')]
     public function deleteOrderAction(Order $order): Response
     {
-        $result = $this->orderManager->deleteUserProperty($order);
+        $result = $this->orderManager->deleteOrder($order);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
     }
@@ -67,11 +67,11 @@ class OrderController extends AbstractController
     public function updateOrderAction(Request $request): Response
     {
         $orderId = $request->query->get('orderId');
-        $customerId = $request->request->get('customerId');
-        $executorId = $request->request->get('executorId');
-        $description = $request->request->get('description');
-        $status = $request->request->get('status');
-        $price = $request->request->get('price');
+        $customerId = $request->query->get('customerId');
+        $executorId = $request->query->get('executorId');
+        $description = $request->query->get('description');
+        $status = $request->query->get('status');
+        $price = $request->query->get('price');
         $result = $this->orderManager->updateOrder(
             $orderId,
             $customerId,

@@ -37,8 +37,8 @@ class UserController extends AbstractController
     #[Route(path: '', methods: ['GET'])]
     public function getUsersAction(Request $request): Response
     {
-        $perPage = $request->request->get('perPage');
-        $page = $request->request->get('page');
+        $perPage = $request->query->get('perPage');
+        $page = $request->query->get('page');
         $users = $this->userManager->getUsers($page ?? self::DEFAULT_PAGE, $perPage ?? self::DEFAULT_PER_PAGE);
         $code = empty($users) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
