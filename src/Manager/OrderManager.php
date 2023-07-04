@@ -59,12 +59,9 @@ class OrderManager
         }
         /** @var UserRepository $userRepository */
         $userRepository = $this->entityManager->getRepository(User::class);
-        /** @var OrderRepository\ $orderRepository */
-        $orderRepository = $this->entityManager->getRepository(Order::class);
         /** @var User $user */
         $customer = $userRepository->find($customerId);
         $executor = $userRepository->find($executorId);
-        $order = $orderRepository->find($orderId);
         $order->setCustomer($customer);
         $order->setExecutor($executor);
         $order->setDescription($description);
