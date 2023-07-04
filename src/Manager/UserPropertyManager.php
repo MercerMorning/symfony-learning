@@ -2,6 +2,7 @@
 
 namespace App\Manager;
 
+use App\DTO\ManageUserPropertyDTO;
 use App\Entity\User;
 use App\Entity\UserProperty;
 use App\Repository\UserPropertyRepository;
@@ -27,6 +28,16 @@ class UserPropertyManager
         $userProperty->setUser($user);
         $userProperty->setName($name);
         $userProperty->setValue($value);
+        $this->entityManager->persist($userProperty);
+        $this->entityManager->flush();
+        return $userProperty->getId();
+    }
+
+    public function saveUserPropertyFromDTO(UserProperty $userProperty, ManageUserPropertyDTO $manageUserPropertyDTO): ?int
+    {
+        $userProperty->setUser($manageUserPropertyDTO->user);
+        $userProperty->setName($manageUserPropertyDTO->name);
+        $userProperty->setValue($manageUserPropertyDTO->value);
         $this->entityManager->persist($userProperty);
         $this->entityManager->flush();
         return $userProperty->getId();
@@ -65,5 +76,13 @@ class UserPropertyManager
         $userPropertyRepository = $this->entityManager->getRepository(UserProperty::class);
 
         return $userPropertyRepository->getUserProperties($page, $perPage);
+    }
+
+    public function getUserPropertyById(int $id): ?UserProperty
+    {
+        /** @var UserPropertyRepository $userPropertyRepository */
+        $userPropertyRepository = $this->entityManager->getRepository(UserProperty::class);
+
+        return $userPropertyRepository->find($id);
     }
 }
