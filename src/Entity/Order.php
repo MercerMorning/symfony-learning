@@ -34,7 +34,7 @@ class Order
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     private int $status;
 
-    #[ORM\Column(type: Types::DECIMAL, nullable: false, precision: 2, scale: 2)]
+    #[ORM\Column(type: Types::DECIMAL, nullable: false, precision: 5, scale: 2)]
     private float $price;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]

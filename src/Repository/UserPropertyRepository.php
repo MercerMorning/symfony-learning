@@ -21,6 +21,21 @@ class UserPropertyRepository extends ServiceEntityRepository
         parent::__construct($registry, UserProperty::class);
     }
 
+    /**
+     * @return UserProperty[]
+     */
+    public function getUserProperties(int $page, int $perPage): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('t')
+            ->from($this->getClassName(), 't')
+            ->orderBy('t.id', 'DESC')
+            ->setFirstResult($perPage * $page)
+            ->setMaxResults($perPage);
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function findByPropertyNameValue(string $name, string $value): array
     {
         return $this->createQueryBuilder('u')
