@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+{% form_theme form 'bootstrap_4_layout.html.twig' %}
+<div style="width:50%;margin-left:10px;margin-top:10px">
+    {{ form_start(form) }}
+    {{ form_row(form.name) }}
+    {{ form_row(form.value) }}
+    {{ form_row(form.user) }}
+    {{ form_row(form.submit) }}
+    {{ form_end(form, {'render_rest': false}) }}
+</div>
+</body>
+</html>
