@@ -8,12 +8,14 @@ class AuthUser implements UserInterface
 {
     private string $username;
 
+    private int $id;
     /** @var string[] */
     private array $roles;
 
     public function __construct(array $credentials)
     {
         $this->username = $credentials['username'];
+        $this->id = $credentials['id'];
         $this->roles = array_unique(array_merge($credentials['roles'] ?? [], ['ROLE_USER']));
     }
 
@@ -28,6 +30,11 @@ class AuthUser implements UserInterface
     public function getPassword(): string
     {
         return '';
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
     }
 
     public function getUserIdentifier(): string

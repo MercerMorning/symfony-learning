@@ -42,6 +42,7 @@ class AuthService
         $roles = $user ? $user->getRoles() : [];
         $tokenData = [
             'username' => $login,
+            'id' => $user->getId(),
             'roles' => $roles,
             'exp' => time() + $this->tokenTTL
         ];

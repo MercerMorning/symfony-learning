@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 #[Route(path: 'api/v1/order')]
 class OrderController extends AbstractController
@@ -17,14 +18,25 @@ class OrderController extends AbstractController
     private const DEFAULT_PAGE = 0;
     private const DEFAULT_PER_PAGE = 20;
 
-    public function __construct(private readonly OrderManager $orderManager)
+    private OrderManager $orderManager;
+    private AuthorizationCheckerInterface $authorizationChecker;
+
+    public function __construct(
+        OrderManager $orderManager,
+        AuthorizationCheckerInterface $authorizationChecker
+    )
     {
+        $this->orderManager = $orderManager;
+        $this->authorizationChecker = $authorizationChecker;
     }
 
     #[Route(path: '', methods: ['POST'])]
     public function saveOrderAction(Request $request): Response
     {
         $customerId = $request->request->get('customerId');
+        if (!$this->authorizationChecker->isGranted('create_entity', $customerId)) {
+            return new JsonResponse('Access denied', Response::HTTP_FORBIDDEN);
+        }
         $executorId = $request->request->get('executorId');
         $description = $request->request->get('description');
         $status = $request->request->get('status');
@@ -67,6 +79,9 @@ class OrderController extends AbstractController
     public function updateOrderAction(Request $request): Response
     {
         $orderId = $request->query->get('orderId');
+        if (!$this->authorizationChecker->isGranted('create_entity', $this->orderManager->getOrderById($orderId))) {
+            return new JsonResponse('Access denied', Response::HTTP_FORBIDDEN);
+        }
         $customerId = $request->query->get('customerId');
         $executorId = $request->query->get('executorId');
         $description = $request->query->get('description');
