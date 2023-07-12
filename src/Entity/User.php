@@ -10,6 +10,7 @@ use JetBrains\PhpStorm\ArrayShape;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use JMS\Serializer\Annotation as JMS;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -18,9 +19,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[JMS\Type('int')]
+    #[JMS\Groups(['user-id-list'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
+    #[JMS\Groups(['main-user-info'])]
     private string $login;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: 'UserProperty')]
@@ -41,6 +45,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private DateTime $updatedAt;
 
     #[ORM\Column(type: 'string', length: 120, nullable: false)]
+    #[JMS\Exclude]
     private string $password;
 
     #[ORM\Column(type: 'json', length: 1024, nullable: false)]
