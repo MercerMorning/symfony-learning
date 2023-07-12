@@ -2,23 +2,41 @@
 
 namespace App\Manager;
 
+use App\DTO\ManageUserDTO;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserManager
 {
     private EntityManagerInterface $entityManager;
+    private UserPasswordHasherInterface $userPasswordHasher;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $userPasswordHasher
+    )
     {
         $this->entityManager = $entityManager;
+        $this->userPasswordHasher = $userPasswordHasher;
     }
 
     public function saveUser(string $login): ?int
     {
         $user = new User();
         $user->setLogin($login);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $user->getId();
+    }
+
+    public function saveUserFromDTO(User $user, ManageUserDTO $manageUserDTO): ?int
+    {
+        $user->setLogin($manageUserDTO->login);
+        $user->setPassword($this->userPasswordHasher->hashPassword($user, $manageUserDTO->password));
+        $user->setRoles($manageUserDTO->roles);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 

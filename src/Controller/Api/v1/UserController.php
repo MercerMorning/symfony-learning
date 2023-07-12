@@ -2,8 +2,10 @@
 
 namespace App\Controller\Api\v1;
 
+use App\DTO\ManageUserDTO;
 use App\Entity\User;
 use App\Manager\UserManager;
+use App\Security\Voter\UserVoter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 #[Route(path: 'api/v1/user')]
 class UserController extends AbstractController
@@ -18,15 +21,19 @@ class UserController extends AbstractController
     private const DEFAULT_PAGE = 0;
     private const DEFAULT_PER_PAGE = 20;
 
-    public function __construct(private readonly UserManager $userManager)
+    private UserManager $userManager;
+    private AuthorizationCheckerInterface $authorizationChecker;
+
+    public function __construct(UserManager $userManager)
     {
+        $this->userManager = $userManager;
     }
 
     #[Route(path: '', methods: ['POST'])]
     public function saveUserAction(Request $request): Response
     {
-        $login = $request->request->get('login');
-        $userId = $this->userManager->saveUser($login);
+        $saveUserDTO = ManageUserDTO::fromRequest($request);
+        $userId = $this->userManager->saveUserFromDTO(new User(), $saveUserDTO);
         [$data, $code] = $userId === null ?
             [['success' => false], Response::HTTP_BAD_REQUEST] :
             [['success' => true, 'userId' => $userId], Response::HTTP_OK];
@@ -56,6 +63,9 @@ class UserController extends AbstractController
     #[Entity('user', expr: 'repository.find(user_id)')]
     public function deleteUserAction(User $user): Response
     {
+        if (!$this->authorizationChecker->isGranted(UserVoter::DELETE, $user)) {
+            return new JsonResponse('Access denied', Response::HTTP_FORBIDDEN);
+        }
         $result = $this->userManager->deleteUser($user);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
