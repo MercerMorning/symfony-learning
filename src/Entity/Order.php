@@ -13,7 +13,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ORM\Table(name: '`order`')]
 #[ORM\Index(columns: ['customer_id'], name: 'order__customer_id__ind')]
 #[ORM\Index(columns: ['executor_id'], name: 'order__executor_id__ind')]
-class Order
+class Order implements HasOwnerInterface
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
@@ -160,5 +160,10 @@ class Order
             'status' => $this->status,
             'price' => $this->price
         ];
+    }
+
+    public function getOwner(): User
+    {
+        return $this->customer;
     }
 }

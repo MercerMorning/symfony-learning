@@ -11,7 +11,7 @@ use JetBrains\PhpStorm\ArrayShape;
 #[ORM\Entity(repositoryClass: UserPropertyRepository::class)]
 #[ORM\Index(columns: ['user_id'], name: 'user_property__user_id__ind')]
 #[ORM\Index(columns: ['name', 'value'], name: 'user_property__name_value__ind')]
-class UserProperty
+class UserProperty implements HasOwnerInterface
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
@@ -35,6 +35,11 @@ class UserProperty
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'update')]
     private DateTime $updatedAt;
+
+    public function getOwner(): User
+    {
+        return $this->user;
+    }
 
     public function getId(): int
     {

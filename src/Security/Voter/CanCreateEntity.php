@@ -13,7 +13,7 @@ class CanCreateEntity extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        return $attribute === self::ACTION && (int)$subject == $subject;
+        return $attribute === self::ACTION && (int) $subject === $subject;
     }
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
@@ -22,6 +22,6 @@ class CanCreateEntity extends Voter
         if (!$user instanceof AuthUser) {
             return false;
         }
-        return $user->getId() == $subject;
+        return $user->getId() === $subject;
     }
 }

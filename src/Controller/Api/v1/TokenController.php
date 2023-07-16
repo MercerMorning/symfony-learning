@@ -22,8 +22,8 @@ class TokenController extends AbstractController
     #[Route(path: '', methods: ['POST'])]
     public function getTokenAction(Request $request): Response
     {
-        $user = $request->getUser();
-        $password = $request->getPassword();
+        $user = $request->headers->get('PHP_AUTH_USER');
+        $password = $request->headers->get('PHP_AUTH_PW');
         if (!$user || !$password) {
             return new JsonResponse(['message' => 'Authorization required'], Response::HTTP_UNAUTHORIZED);
         }

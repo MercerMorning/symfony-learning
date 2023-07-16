@@ -2,13 +2,14 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\HasOwnerInterface;
 use App\Entity\Order;
 use App\Manager\UserPropertyManager;
 use App\Security\AuthUser;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class CanInteractToOrderVoter extends Voter
+class CanInteractToHasOwnerEntityVoter extends Voter
 {
     const ACTIONS = [
         'update_entity',
@@ -18,7 +19,7 @@ class CanInteractToOrderVoter extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        return in_array($attribute, self::ACTIONS) && $subject instanceof Order;
+        return in_array($attribute, self::ACTIONS) && $subject instanceof HasOwnerInterface;
     }
 
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
