@@ -31,10 +31,9 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/api/v1/user_property, roles: ROLE_ADMIN, methods: [GET] }
-        - { path: ^/api/v1/user$, roles: ROLE_ADMIN }
-        - { path: ^/api/v1/order, roles: ROLE_ADMIN, methods: [DELETE]}
-        - { path: ^/api/v1/order, roles: ROLE_ADMIN, methods: [GET]}
+        - { path: ^/api/v1/admin/user$, roles: ROLE_ADMIN }
+        - { path: ^/api/v1/admin/order, roles: ROLE_ADMIN}
+        - { path: ^/api/v1/admin/user_property, roles: ROLE_ADMIN}
 
     role_hierarchy:
         ROLE_ADMIN: ROLE_VIEW

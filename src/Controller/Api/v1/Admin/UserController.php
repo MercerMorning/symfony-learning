@@ -15,14 +15,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-#[Route(path: 'api/v1/user')]
+#[Route(path: 'api/v1/admin/user')]
 class UserController extends AbstractController
 {
     private const DEFAULT_PAGE = 0;
     private const DEFAULT_PER_PAGE = 20;
 
     private UserManager $userManager;
-    private AuthorizationCheckerInterface $authorizationChecker;
 
     public function __construct(UserManager $userManager)
     {
@@ -63,9 +62,6 @@ class UserController extends AbstractController
     #[Entity('user', expr: 'repository.find(user_id)')]
     public function deleteUserAction(User $user): Response
     {
-        if (!$this->authorizationChecker->isGranted(UserVoter::DELETE, $user)) {
-            return new JsonResponse('Access denied', Response::HTTP_FORBIDDEN);
-        }
         $result = $this->userManager->deleteUser($user);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);

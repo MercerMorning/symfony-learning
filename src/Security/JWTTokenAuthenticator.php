@@ -37,12 +37,12 @@ class JWTTokenAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('No API token was provided');
         }
         $tokenData = $this->JWTEncoder->decode($token);
-        if (!isset($tokenData['username'])) {
+        if (!isset($tokenData['id'])) {
             throw new CustomUserMessageAuthenticationException('Invalid JWT token');
         }
 
         return new SelfValidatingPassport(
-            new UserBadge($tokenData['username'], fn() => new AuthUser($tokenData))
+            new UserBadge($tokenData['id'], fn() => new AuthUser($tokenData))
         );
     }
 
