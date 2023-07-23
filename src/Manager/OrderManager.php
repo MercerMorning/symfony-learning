@@ -90,4 +90,12 @@ class OrderManager
 
         return $orderRepository->getOrders($page, $perPage);
     }
+
+    public function getOrderById(int $id): ?Order
+    {
+        /** @var OrderRepository $orderRepository */
+        $orderRepository = $this->entityManager->getRepository(Order::class);
+
+        return $orderRepository->find($id);
+    }
 }

@@ -19,9 +19,14 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Controller/Common/*'
 
     App\Doctrine\MigrationEventSubscriber:
         tags:
             - { name: doctrine.event_subscriber, connection: default }
+
+    App\Service\AuthService:
+        arguments:
+            $tokenTTL: '%env(JWT_TTL_SEC)%'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

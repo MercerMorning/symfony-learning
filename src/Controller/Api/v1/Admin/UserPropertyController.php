@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-#[Route(path: 'api/v1/user_property')]
+#[Route(path: 'api/v1/admin/user_property')]
 class UserPropertyController extends AbstractController
 {
     private const DEFAULT_PAGE = 0;
@@ -39,7 +39,7 @@ class UserPropertyController extends AbstractController
     #[Route(path: '', methods: ['POST'])]
     public function saveUserPropertyAction(Request $request): Response
     {
-        $userId = $this->tokenStorage->getToken()->getUser()->getUserIdentifier();
+        $userId = $request->get('userId');
         $name = $request->request->get('name');
         $value = $request->request->get('value');
         $userId = $this->userPropertyManager->saveUserProperty($userId, $name, $value);
@@ -50,13 +50,21 @@ class UserPropertyController extends AbstractController
         return new JsonResponse($data, $code);
     }
 
+    #[Route(path: '', methods: ['GET'])]
+    public function getUserPropertiesAction(Request $request): Response
+    {
+        $perPage = $request->query->get('perPage');
+        $page = $request->query->get('page');
+        $users = $this->userPropertyManager->getUserProperties($page ?? self::DEFAULT_PAGE, $perPage ?? self::DEFAULT_PER_PAGE);
+        $code = empty($users) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
+
+        return new JsonResponse(['userProperties' => array_map(static fn(UserProperty $user) => $user->toArray(), $users)], $code);
+    }
+
     #[Route(path: '/{user_property_id}', requirements: ['user_property_id' => '\d+'], methods: ['DELETE'])]
     #[Entity('userProperty', expr: 'repository.find(user_property_id)')]
     public function deleteUserPropertyAction(UserProperty $userProperty): Response
     {
-        if (!$this->authorizationChecker->isGranted('delete_entity', $userProperty)) {
-            return new JsonResponse('Access denied', Response::HTTP_FORBIDDEN);
-        }
         $result = $this->userPropertyManager->deleteUserProperty($userProperty);
 
         return new JsonResponse(['success' => $result], $result ? Response::HTTP_OK : Response::HTTP_NOT_FOUND);
@@ -66,14 +74,6 @@ class UserPropertyController extends AbstractController
     public function updateUserPropertyAction(Request $request): Response
     {
         $userPropertyId = $request->query->get('userPropertyId');
-        if (!$this->authorizationChecker->isGranted(
-            'update_entity',
-            $this
-                ->userPropertyManager
-                ->getUserPropertyById($userPropertyId))
-        ) {
-            return new JsonResponse('Access denied', Response::HTTP_FORBIDDEN);
-        }
         $name = $request->query->get('name');
         $value = $request->query->get('value');
         $result = $this->userPropertyManager->updateUserProperty($userPropertyId, $name, $value);
