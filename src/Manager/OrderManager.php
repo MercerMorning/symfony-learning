@@ -7,10 +7,15 @@ use App\Entity\User;
 use App\Repository\OrderRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class OrderManager
 {
     private EntityManagerInterface $entityManager;
+    private TagAwareCacheInterface $cache;
+
+    private const CACHE_TAG = 'orders';
 
     public function __construct(EntityManagerInterface $entityManager)
     {
@@ -38,6 +43,7 @@ class OrderManager
         $order->setPrice($price);
         $this->entityManager->persist($order);
         $this->entityManager->flush();
+        $this->cache->invalidateTags([self::CACHE_TAG]);
         return $order->getId();
     }
 
@@ -88,7 +94,17 @@ class OrderManager
         /** @var OrderRepository $orderRepository */
         $orderRepository = $this->entityManager->getRepository(Order::class);
 
-        return $orderRepository->getOrders($page, $perPage);
+        return $this->cache->get(
+            "orders_{$page}_{$perPage}",
+            function(ItemInterface $item) use ($orderRepository, $page, $perPage) {
+                $orders = $orderRepository->getOrders($page, $perPage);
+                $ordersSerialized = array_map(static fn(Order $order) => $order->toArray(), $orders);
+                $item->set($ordersSerialized);
+                $item->tag(self::CACHE_TAG);
+
+                return $ordersSerialized;
+            }
+        );
     }
 
     public function getOrderById(int $id): ?Order

@@ -2,16 +2,15 @@
 
 namespace App\Controller\Api\v1;
 
-use App\Entity\Order;
+use App\DTO\SaveOrderDTO;
 use App\Manager\OrderManager;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
+use App\Service\AsyncService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 #[Route(path: 'api/v1/order')]
@@ -22,23 +21,26 @@ class OrderController extends AbstractController
 
     private OrderManager $orderManager;
     private AuthorizationCheckerInterface $authorizationChecker;
-
+    private AsyncService $asyncService;
     private TokenStorageInterface $tokenStorage;
 
     public function __construct(
-        OrderManager $orderManager,
+        OrderManager                  $orderManager,
         AuthorizationCheckerInterface $authorizationChecker,
-        TokenStorageInterface $tokenStorage
+        TokenStorageInterface         $tokenStorage,
+        AsyncService $asyncService
     )
     {
         $this->orderManager = $orderManager;
         $this->authorizationChecker = $authorizationChecker;
         $this->tokenStorage = $tokenStorage;
+        $this->asyncService = $asyncService;
     }
 
     #[Route(path: '', methods: ['POST'])]
     public function saveOrderAction(Request $request): Response
     {
+        $async = $request->request->get('async');
         $customerId = $this->tokenStorage->getToken()->getUser()->getUserIdentifier();
         $executorId = $request->request->get('executorId');
         $description = $request->request->get('description');
@@ -51,10 +53,24 @@ class OrderController extends AbstractController
             $status,
             $price
         );
-        [$data, $code] = $orderId === null ?
-            [['success' => false], Response::HTTP_BAD_REQUEST] :
-            [['success' => true, 'orderId' => $orderId], Response::HTTP_OK];
-
+        if ($async === 0) {
+            $orderId = $this->orderManager->saveOrder(
+                $customerId,
+                $executorId,
+                $description,
+                $status,
+                $price
+            );
+            [$data, $code] = $orderId === null ?
+                [['success' => false], Response::HTTP_BAD_REQUEST] :
+                [['success' => true, 'orderId' => $orderId], Response::HTTP_OK];
+        } else {
+            $message = (new SaveOrderDTO($customerId, $executorId, $description, $status, $price))->toAMQPMessage();
+            $result = $this->asyncService->publishToExchange(AsyncService::ADD_ORDER, $message);
+            [$data, $code] = $result ?
+                [['success' => false], Response::HTTP_BAD_REQUEST] :
+                [['success' => true, 'orderId' => $orderId], Response::HTTP_ACCEPTED];
+        }
         return new JsonResponse($data, $code);
     }
 

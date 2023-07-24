@@ -63,10 +63,10 @@ class OrderController extends AbstractController
     {
         $perPage = $request->query->get('perPage');
         $page = $request->query->get('page');
-        $users = $this->orderManager->getOrders($page ?? self::DEFAULT_PAGE, $perPage ?? self::DEFAULT_PER_PAGE);
-        $code = empty($users) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
+        $orders = $this->orderManager->getOrders($page ?? self::DEFAULT_PAGE, $perPage ?? self::DEFAULT_PER_PAGE);
+        $code = empty($orders) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
-        return new JsonResponse(['orders' => array_map(static fn(Order $user) => $user->toArray(), $users)], $code);
+        return new JsonResponse(['orders' => $orders], $code);
     }
 
     #[Route(path: '/{order_id}', requirements: ['order_id' => '\d+'], methods: ['DELETE'])]
