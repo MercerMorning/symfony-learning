@@ -46,8 +46,8 @@ class Consumer implements ConsumerInterface
                 return $this->reject(sprintf('User ID %s was not found', $message->getExecutorId()));
             }
             $this->orderManager->saveOrder(
-                $customer,
-                $executor,
+                $message->getCustomerId(),
+                $message->getExecutorId(),
                 $message->getDescription(),
                 $message->getStatus(),
                 $message->getPrice()

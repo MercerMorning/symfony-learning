@@ -17,9 +17,13 @@ class OrderManager
 
     private const CACHE_TAG = 'orders';
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        TagAwareCacheInterface $cache
+    )
     {
         $this->entityManager = $entityManager;
+        $this->cache = $cache;
     }
 
     public function saveOrder(

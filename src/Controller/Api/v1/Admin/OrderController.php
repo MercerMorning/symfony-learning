@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api\v1;
+namespace App\Controller\Api\v1\Admin;
 
 use App\Entity\Order;
 use App\Manager\OrderManager;
@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 #[Route(path: 'api/v1/admin/order')]
@@ -21,9 +20,6 @@ class OrderController extends AbstractController
     private const DEFAULT_PER_PAGE = 20;
 
     private OrderManager $orderManager;
-    private AuthorizationCheckerInterface $authorizationChecker;
-
-    private TokenStorageInterface $tokenStorage;
 
     public function __construct(
         OrderManager $orderManager,

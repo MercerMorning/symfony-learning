@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Consumer\AddOrder\Input;
+namespace App\Consumer\InvalidateCache\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;
 

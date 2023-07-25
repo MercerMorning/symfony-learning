@@ -7,6 +7,7 @@ use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 class AsyncService
 {
     public const ADD_ORDER = 'add_order';
+    public const INVALIDATE_CACHE = 'invalidate_cache';
 
     /** @var ProducerInterface[] */
     private array $producers;
@@ -25,10 +26,8 @@ class AsyncService
     {
         if (isset($this->producers[$producerName])) {
             $this->producers[$producerName]->publish($message, $routingKey ?? '', $additionalProperties ?? []);
-
             return true;
         }
-
         return false;
     }
 }

@@ -16,9 +16,6 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 #[Route(path: 'api/v1/order')]
 class OrderController extends AbstractController
 {
-    private const DEFAULT_PAGE = 0;
-    private const DEFAULT_PER_PAGE = 20;
-
     private OrderManager $orderManager;
     private AuthorizationCheckerInterface $authorizationChecker;
     private AsyncService $asyncService;
@@ -46,13 +43,7 @@ class OrderController extends AbstractController
         $description = $request->request->get('description');
         $status = $request->request->get('status');
         $price = $request->request->get('price');
-        $orderId = $this->orderManager->saveOrder(
-            $customerId,
-            $executorId,
-            $description,
-            $status,
-            $price
-        );
+        //TODO: переделать чтобы не было if здесь
         if ($async === 0) {
             $orderId = $this->orderManager->saveOrder(
                 $customerId,
@@ -63,13 +54,13 @@ class OrderController extends AbstractController
             );
             [$data, $code] = $orderId === null ?
                 [['success' => false], Response::HTTP_BAD_REQUEST] :
-                [['success' => true, 'orderId' => $orderId], Response::HTTP_OK];
+                [['success' => true], Response::HTTP_OK];
         } else {
             $message = (new SaveOrderDTO($customerId, $executorId, $description, $status, $price))->toAMQPMessage();
             $result = $this->asyncService->publishToExchange(AsyncService::ADD_ORDER, $message);
-            [$data, $code] = $result ?
+            [$data, $code] = $result === false ?
                 [['success' => false], Response::HTTP_BAD_REQUEST] :
-                [['success' => true, 'orderId' => $orderId], Response::HTTP_ACCEPTED];
+                [['success' => true], Response::HTTP_ACCEPTED];
         }
         return new JsonResponse($data, $code);
     }
