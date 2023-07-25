@@ -23,9 +23,9 @@ class OrderManager
     private const CACHE_TAG = 'orders';
 
     public function __construct(
-        EntityManagerInterface $entityManager,
-        TagAwareCacheInterface $cache,
-        AsyncService $asyncService,
+        EntityManagerInterface    $entityManager,
+        TagAwareCacheInterface    $cache,
+        AsyncService              $asyncService,
         ExceptionHandlerInterface $exceptionHandler
     )
     {
@@ -36,11 +36,11 @@ class OrderManager
     }
 
     public function saveOrder(
-        int $customerId,
-        int $executorId,
+        int    $customerId,
+        int    $executorId,
         string $description,
-        int $status,
-        float $price
+        int    $status,
+        float  $price
     ): ?int
     {
         /** @var UserRepository $userRepository */
@@ -58,22 +58,17 @@ class OrderManager
         $this->entityManager->flush();
         //TODO: добавить возможность синхронной инвалидации
         $message = new InvalidateCacheDTO(self::CACHE_TAG);
-        try {
-            $this->asyncService->publishToExchange(AsyncService::INVALIDATE_CACHE, $message->toAMQPMessage());
-        } catch (\Throwable $exception) {
-            $this->exceptionHandler->handle($exception);
-        }
-//        $this->cache->invalidateTags([self::CACHE_TAG]);
+        $this->asyncService->publishToExchange(AsyncService::INVALIDATE_CACHE, $message->toAMQPMessage());
         return $order->getId();
     }
 
     public function updateOrder(
-        int $orderId,
-        int $customerId,
-        int $executorId,
+        int    $orderId,
+        int    $customerId,
+        int    $executorId,
         string $description,
-        int $status,
-        float $price
+        int    $status,
+        float  $price
     ): bool
     {
         /** @var OrderRepository $orderRepository */
@@ -116,7 +111,7 @@ class OrderManager
 
         return $this->cache->get(
             "orders_{$page}_{$perPage}",
-            function(ItemInterface $item) use ($orderRepository, $page, $perPage) {
+            function (ItemInterface $item) use ($orderRepository, $page, $perPage) {
                 $orders = $orderRepository->getOrders($page, $perPage);
                 $ordersSerialized = array_map(static fn(Order $order) => $order->toArray(), $orders);
                 $item->set($ordersSerialized);

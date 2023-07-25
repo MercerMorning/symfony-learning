@@ -3,8 +3,10 @@
 namespace App\Controller\Api\v1;
 
 use App\DTO\SaveOrderDTO;
+use App\Factory\SaveOrderStrategyFactory;
 use App\Manager\OrderManager;
 use App\Service\AsyncService;
+use App\Strategy\SaveOrderStrategyInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,20 +20,19 @@ class OrderController extends AbstractController
 {
     private OrderManager $orderManager;
     private AuthorizationCheckerInterface $authorizationChecker;
-    private AsyncService $asyncService;
     private TokenStorageInterface $tokenStorage;
+    private SaveOrderStrategyFactory $saveOrderStrategyFactory;
 
     public function __construct(
         OrderManager                  $orderManager,
         AuthorizationCheckerInterface $authorizationChecker,
         TokenStorageInterface         $tokenStorage,
-        AsyncService $asyncService
+        SaveOrderStrategyFactory $saveOrderStrategyFactory
     )
     {
         $this->orderManager = $orderManager;
         $this->authorizationChecker = $authorizationChecker;
-        $this->tokenStorage = $tokenStorage;
-        $this->asyncService = $asyncService;
+        $this->saveOrderStrategyFactory = $saveOrderStrategyFactory;
     }
 
     #[Route(path: '', methods: ['POST'])]
@@ -43,26 +44,15 @@ class OrderController extends AbstractController
         $description = $request->request->get('description');
         $status = $request->request->get('status');
         $price = $request->request->get('price');
-        //TODO: переделать чтобы не было if здесь
-        if ($async === "0") {
-            $orderId = $this->orderManager->saveOrder(
-                $customerId,
-                $executorId,
-                $description,
-                $status,
-                $price
-            );
-            [$data, $code] = $orderId === null ?
-                [['success' => false], Response::HTTP_BAD_REQUEST] :
-                [['success' => true], Response::HTTP_OK];
-        } else {
-            $message = (new SaveOrderDTO($customerId, $executorId, $description, $status, $price))->toAMQPMessage();
-            $result = $this->asyncService->publishToExchange(AsyncService::ADD_ORDER, $message);
-            [$data, $code] = $result === false ?
-                [['success' => false], Response::HTTP_BAD_REQUEST] :
-                [['success' => true], Response::HTTP_ACCEPTED];
-        }
-        return new JsonResponse($data, $code);
+        $saveOrderStrategy = $this->saveOrderStrategyFactory->get($async === "0" ? 'sync' : 'async');
+        $saveOrderStrategy->save(
+            $customerId,
+            $executorId,
+            $description,
+            $status,
+            $price
+        );
+        return new JsonResponse(['success' => true], Response::HTTP_OK);
     }
 
     #[Route(path: '', methods: ['PATCH'])]
