@@ -2,10 +2,13 @@
 
 namespace App\Manager;
 
+use App\DTO\InvalidateCacheDTO;
 use App\Entity\Order;
 use App\Entity\User;
+use App\ExceptionHandler\ExceptionHandlerInterface;
 use App\Repository\OrderRepository;
 use App\Repository\UserRepository;
+use App\Service\AsyncService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -14,16 +17,22 @@ class OrderManager
 {
     private EntityManagerInterface $entityManager;
     private TagAwareCacheInterface $cache;
+    private AsyncService $asyncService;
+    private ExceptionHandlerInterface $exceptionHandler;
 
     private const CACHE_TAG = 'orders';
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        TagAwareCacheInterface $cache
+        TagAwareCacheInterface $cache,
+        AsyncService $asyncService,
+        ExceptionHandlerInterface $exceptionHandler
     )
     {
         $this->entityManager = $entityManager;
         $this->cache = $cache;
+        $this->asyncService = $asyncService;
+        $this->exceptionHandler = $exceptionHandler;
     }
 
     public function saveOrder(
@@ -47,7 +56,13 @@ class OrderManager
         $order->setPrice($price);
         $this->entityManager->persist($order);
         $this->entityManager->flush();
-        $this->cache->invalidateTags([self::CACHE_TAG]);
+        $message = new InvalidateCacheDTO(self::CACHE_TAG);
+        try {
+            $this->asyncService->publishToExchange(AsyncService::INVALIDATE_CACHE, $message->toAMQPMessage());
+        } catch (\Throwable $exception) {
+            $this->exceptionHandler->handle($exception);
+        }
+//        $this->cache->invalidateTags([self::CACHE_TAG]);
         return $order->getId();
     }
 
@@ -105,7 +120,6 @@ class OrderManager
                 $ordersSerialized = array_map(static fn(Order $order) => $order->toArray(), $orders);
                 $item->set($ordersSerialized);
                 $item->tag(self::CACHE_TAG);
-
                 return $ordersSerialized;
             }
         );

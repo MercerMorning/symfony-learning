@@ -44,7 +44,7 @@ class OrderController extends AbstractController
         $status = $request->request->get('status');
         $price = $request->request->get('price');
         //TODO: переделать чтобы не было if здесь
-        if ($async === 0) {
+        if ($async === "0") {
             $orderId = $this->orderManager->saveOrder(
                 $customerId,
                 $executorId,

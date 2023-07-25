@@ -2,21 +2,20 @@
 
 namespace App\Consumer\InvalidateCache;
 
-use App\Consumer\AddOrder\Input\Message;
-use App\Entity\User;
-use App\Manager\OrderManager;
-use App\Service\SubscriptionService;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Consumer\InvalidateCache\Input\Message;
 use JsonException;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Throwable;
 
 class Consumer implements ConsumerInterface
 {
+
     public function __construct(
         private readonly ValidatorInterface $validator,
+        private readonly TagAwareCacheInterface $cache
     )
     {
     }
@@ -34,27 +33,9 @@ class Consumer implements ConsumerInterface
         }
 
         try {
-            $userRepository = $this->entityManager->getRepository(User::class);
-            $customer = $userRepository->find($message->getCustomerId());
-            $executor = $userRepository->find($message->getExecutorId());
-            if (!($customer instanceof User)) {
-                return $this->reject(sprintf('User ID %s was not found', $message->getCustomerId()));
-            }
-            if (!($executor instanceof User)) {
-                return $this->reject(sprintf('User ID %s was not found', $message->getExecutorId()));
-            }
-            $this->orderManager->saveOrder(
-                $customer,
-                $executor,
-                $message->getDescription(),
-                $message->getStatus(),
-                $message->getPrice()
-            );
+           dump($this->cache->invalidateTags([$message->getCacheTag()]));
         } catch (Throwable $e) {
             return $this->reject($e->getMessage());
-        } finally {
-            $this->entityManager->clear();
-            $this->entityManager->getConnection()->close();
         }
 
         return self::MSG_ACK;
