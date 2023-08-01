@@ -2,7 +2,7 @@
 
 namespace App\Manager;
 
-use App\DTO\InvalidateCacheDTO;
+use App\DTO\CreateOrderDTO;
 use App\Entity\Order;
 use App\Entity\User;
 use App\ExceptionHandler\ExceptionHandlerInterface;
@@ -56,7 +56,7 @@ class OrderManager
         $order->setPrice($price);
         $this->entityManager->persist($order);
         $this->entityManager->flush();
-        $message = new InvalidateCacheDTO(self::CACHE_TAG);
+        $message = new CreateOrderDTO($order->getId());
         $this->asyncService->publishToExchange(AsyncService::INVALIDATE_CACHE, $message->toAMQPMessage());
         return $order->getId();
     }

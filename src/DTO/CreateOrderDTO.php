@@ -5,16 +5,16 @@ namespace App\DTO;
 
 use JsonException;
 
-class InvalidateCacheDTO
+class CreateOrderDTO
 {
     private array $payload;
 
     public function __construct(
-        string $tag,
+        int $id,
     )
     {
         $this->payload = [
-            'tag' => $tag
+            'id' => $id
         ];
     }
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Consumer\InvalidateCache;
+namespace App\Consumer\CreateOrder;
 
-use App\Consumer\InvalidateCache\Input\Message;
+use App\Consumer\CreateOrder\Input\Message;
 use JsonException;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -14,7 +14,6 @@ class Consumer implements ConsumerInterface
 {
 
     public function __construct(
-        private readonly ValidatorInterface $validator,
         private readonly TagAwareCacheInterface $cache
     )
     {
@@ -23,17 +22,7 @@ class Consumer implements ConsumerInterface
     public function execute(AMQPMessage $msg): int
     {
         try {
-            $message = Message::createFromQueue($msg->getBody());
-            $errors = $this->validator->validate($message);
-            if ($errors->count() > 0) {
-                return $this->rejectAndRequeue((string)$errors);
-            }
-        } catch (JsonException $e) {
-            return $this->rejectAndRequeue($e->getMessage());
-        }
-
-        try {
-           $this->cache->invalidateTags([$message->getCacheTag()]);
+           $this->cache->invalidateTags(['orders']);
         } catch (Throwable $e) {
             return $this->rejectAndRequeue($e->getMessage());
         }
