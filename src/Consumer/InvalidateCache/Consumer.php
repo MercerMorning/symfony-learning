@@ -26,25 +26,25 @@ class Consumer implements ConsumerInterface
             $message = Message::createFromQueue($msg->getBody());
             $errors = $this->validator->validate($message);
             if ($errors->count() > 0) {
-                return $this->reject((string)$errors);
+                return $this->rejectAndRequeue((string)$errors);
             }
         } catch (JsonException $e) {
-            return $this->reject($e->getMessage());
+            return $this->rejectAndRequeue($e->getMessage());
         }
 
         try {
-           dump($this->cache->invalidateTags([$message->getCacheTag()]));
+           $this->cache->invalidateTags([$message->getCacheTag()]);
         } catch (Throwable $e) {
-            return $this->reject($e->getMessage());
+            return $this->rejectAndRequeue($e->getMessage());
         }
 
         return self::MSG_ACK;
     }
 
-    private function reject(string $error): int
+    private function rejectAndRequeue(string $error): int
     {
         echo "Incorrect message: $error";
 
-        return self::MSG_REJECT;
+        return self::MSG_REJECT_REQUEUE;
     }
 }

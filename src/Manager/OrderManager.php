@@ -56,7 +56,6 @@ class OrderManager
         $order->setPrice($price);
         $this->entityManager->persist($order);
         $this->entityManager->flush();
-        //TODO: добавить возможность синхронной инвалидации
         $message = new InvalidateCacheDTO(self::CACHE_TAG);
         $this->asyncService->publishToExchange(AsyncService::INVALIDATE_CACHE, $message->toAMQPMessage());
         return $order->getId();
