@@ -2,27 +2,45 @@
 
 namespace App\Manager;
 
+use App\DTO\CreateOrderDTO;
 use App\Entity\Order;
 use App\Entity\User;
+use App\ExceptionHandler\ExceptionHandlerInterface;
 use App\Repository\OrderRepository;
 use App\Repository\UserRepository;
+use App\Service\AsyncService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class OrderManager
 {
     private EntityManagerInterface $entityManager;
+    private TagAwareCacheInterface $cache;
+    private AsyncService $asyncService;
+    private ExceptionHandlerInterface $exceptionHandler;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    private const CACHE_TAG = 'orders';
+
+    public function __construct(
+        EntityManagerInterface    $entityManager,
+        TagAwareCacheInterface    $cache,
+        AsyncService              $asyncService,
+        ExceptionHandlerInterface $exceptionHandler
+    )
     {
         $this->entityManager = $entityManager;
+        $this->cache = $cache;
+        $this->asyncService = $asyncService;
+        $this->exceptionHandler = $exceptionHandler;
     }
 
     public function saveOrder(
-        int $customerId,
-        int $executorId,
+        int    $customerId,
+        int    $executorId,
         string $description,
-        int $status,
-        float $price
+        int    $status,
+        float  $price
     ): ?int
     {
         /** @var UserRepository $userRepository */
@@ -38,16 +56,18 @@ class OrderManager
         $order->setPrice($price);
         $this->entityManager->persist($order);
         $this->entityManager->flush();
+        $message = new CreateOrderDTO($order->getId());
+        $this->asyncService->publishToExchange(AsyncService::INVALIDATE_CACHE, $message->toAMQPMessage());
         return $order->getId();
     }
 
     public function updateOrder(
-        int $orderId,
-        int $customerId,
-        int $executorId,
+        int    $orderId,
+        int    $customerId,
+        int    $executorId,
         string $description,
-        int $status,
-        float $price
+        int    $status,
+        float  $price
     ): bool
     {
         /** @var OrderRepository $orderRepository */
@@ -88,7 +108,16 @@ class OrderManager
         /** @var OrderRepository $orderRepository */
         $orderRepository = $this->entityManager->getRepository(Order::class);
 
-        return $orderRepository->getOrders($page, $perPage);
+        return $this->cache->get(
+            "orders_{$page}_{$perPage}",
+            function (ItemInterface $item) use ($orderRepository, $page, $perPage) {
+                $orders = $orderRepository->getOrders($page, $perPage);
+                $ordersSerialized = array_map(static fn(Order $order) => $order->toArray(), $orders);
+                $item->set($ordersSerialized);
+                $item->tag(self::CACHE_TAG);
+                return $ordersSerialized;
+            }
+        );
     }
 
     public function getOrderById(int $id): ?Order

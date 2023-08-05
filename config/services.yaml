@@ -28,5 +28,16 @@ services:
     App\Service\AuthService:
         arguments:
             $tokenTTL: '%env(JWT_TTL_SEC)%'
+
+    App\Service\AsyncService:
+        calls:
+            - [ 'registerProducer', [ !php/const App\Service\AsyncService::ADD_ORDER, '@old_sound_rabbit_mq.add_order_producer' ] ]
+            - [ 'registerProducer', [ !php/const App\Service\AsyncService::INVALIDATE_CACHE, '@old_sound_rabbit_mq.invalidate_cache_producer' ] ]
+
+    App\Factory\SaveOrderStrategyFactory:
+        calls:
+            - [ 'registerStrategy', [ 'sync', '@App\Strategy\SyncSaveOrderStrategy' ] ]
+            - [ 'registerStrategy', [ 'async', '@App\Strategy\AsyncSaveOrderStrategy' ] ]
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

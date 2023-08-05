@@ -5,4 +5,4 @@
 5. docker-compose up postgres workspace nginx php-fpm
 6. php bin/console doctrine:migrations:migrate
 
-docker-compose up postgres nginx php-fpm workspace
+docker-compose up postgres nginx php-fpm workspace redis rabbitmq -d

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api\v1;
+namespace App\Controller\Api\v1\Admin;
 
 use App\DTO\ManageUserDTO;
 use App\Entity\User;

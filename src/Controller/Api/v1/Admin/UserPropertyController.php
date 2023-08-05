@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api\v1;
+namespace App\Controller\Api\v1\Admin;
 
 use App\Entity\User;
 use App\Entity\UserProperty;

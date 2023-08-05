@@ -2,60 +2,57 @@
 
 namespace App\Controller\Api\v1;
 
-use App\Entity\Order;
+use App\DTO\SaveOrderDTO;
+use App\Factory\SaveOrderStrategyFactory;
 use App\Manager\OrderManager;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
+use App\Service\AsyncService;
+use App\Strategy\SaveOrderStrategyInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 #[Route(path: 'api/v1/order')]
 class OrderController extends AbstractController
 {
-    private const DEFAULT_PAGE = 0;
-    private const DEFAULT_PER_PAGE = 20;
-
     private OrderManager $orderManager;
     private AuthorizationCheckerInterface $authorizationChecker;
-
     private TokenStorageInterface $tokenStorage;
+    private SaveOrderStrategyFactory $saveOrderStrategyFactory;
 
     public function __construct(
-        OrderManager $orderManager,
+        OrderManager                  $orderManager,
         AuthorizationCheckerInterface $authorizationChecker,
-        TokenStorageInterface $tokenStorage
+        TokenStorageInterface         $tokenStorage,
+        SaveOrderStrategyFactory $saveOrderStrategyFactory
     )
     {
         $this->orderManager = $orderManager;
         $this->authorizationChecker = $authorizationChecker;
-        $this->tokenStorage = $tokenStorage;
+        $this->saveOrderStrategyFactory = $saveOrderStrategyFactory;
     }
 
     #[Route(path: '', methods: ['POST'])]
     public function saveOrderAction(Request $request): Response
     {
+        $async = $request->request->get('async');
         $customerId = $this->tokenStorage->getToken()->getUser()->getUserIdentifier();
         $executorId = $request->request->get('executorId');
         $description = $request->request->get('description');
         $status = $request->request->get('status');
         $price = $request->request->get('price');
-        $orderId = $this->orderManager->saveOrder(
+        $saveOrderStrategy = $this->saveOrderStrategyFactory->get($async === "0" ? 'sync' : 'async');
+        $saveOrderStrategy->save(
             $customerId,
             $executorId,
             $description,
             $status,
             $price
         );
-        [$data, $code] = $orderId === null ?
-            [['success' => false], Response::HTTP_BAD_REQUEST] :
-            [['success' => true, 'orderId' => $orderId], Response::HTTP_OK];
-
-        return new JsonResponse($data, $code);
+        return new JsonResponse(['success' => true], Response::HTTP_OK);
     }
 
     #[Route(path: '', methods: ['PATCH'])]
