@@ -23,6 +23,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[JMS\Groups(['user-id-list'])]
     private ?int $id = null;
 
+    /**
+     * @param int|null $id
+     */
+    public function setId(?int $id): void
+    {
+        $this->id = $id;
+    }
+
     #[ORM\Column(type: 'string', length: 32, nullable: false)]
     #[JMS\Groups(['main-user-info'])]
     private string $login;
@@ -32,6 +40,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToMany(mappedBy: 'customer', targetEntity: 'Order')]
     private Collection $acquisitions;
+
+    /**
+     * @param Collection $properties
+     */
+    public function setProperties(Collection $properties): void
+    {
+        $this->properties = $properties;
+    }
 
     #[ORM\OneToMany(mappedBy: 'executor', targetEntity: 'Order')]
     private Collection $executions;
@@ -137,7 +153,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             'login' => $this->login,
             'properties' => array_map(
                 static fn(UserProperty $userProperty) => [
-                    'propertyId' => $userProperty->getId(),
+                    'id' => $userProperty->getId(),
                     'name' => $userProperty->getName(),
                     'value' => $userProperty->getValue(),
                 ],

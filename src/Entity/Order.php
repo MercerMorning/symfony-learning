@@ -121,9 +121,9 @@ class Order implements HasOwnerInterface
     /**
      * @param DateTime $createdAt
      */
-    public function setCreatedAt(DateTime $createdAt): void
+    public function setCreatedAt(): void
     {
-        $this->createdAt = $createdAt;
+        $this->createdAt = DateTime::createFromFormat('U', (string)time());
     }
 
     /**
@@ -154,12 +154,20 @@ class Order implements HasOwnerInterface
     {
         return [
             'id' => $this->id,
-            'customer' => $this->customer->toArray(),
-            'executor' => $this->executor->toArray(),
+            'customer' => $this->customer->getLogin(),
+            'executor' => $this->executor->getLogin(),
             'description' => $this->description,
             'status' => $this->status,
             'price' => $this->price
         ];
+    }
+
+    /**
+     * @param int|null $id
+     */
+    public function setId(?int $id): void
+    {
+        $this->id = $id;
     }
 
     public function getOwner(): User

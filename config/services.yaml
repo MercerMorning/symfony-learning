@@ -32,7 +32,7 @@ services:
     App\Service\AsyncService:
         calls:
             - [ 'registerProducer', [ !php/const App\Service\AsyncService::ADD_ORDER, '@old_sound_rabbit_mq.add_order_producer' ] ]
-            - [ 'registerProducer', [ !php/const App\Service\AsyncService::INVALIDATE_CACHE, '@old_sound_rabbit_mq.invalidate_cache_producer' ] ]
+#            - [ 'registerProducer', [ !php/const App\Service\AsyncService::CREATE_ORDER, '@old_sound_rabbit_mq.create_order' ] ]
 
     App\Factory\SaveOrderStrategyFactory:
         calls:

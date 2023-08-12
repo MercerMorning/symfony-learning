@@ -18,7 +18,6 @@ class OrderManager
     private EntityManagerInterface $entityManager;
     private TagAwareCacheInterface $cache;
     private AsyncService $asyncService;
-    private ExceptionHandlerInterface $exceptionHandler;
 
     private const CACHE_TAG = 'orders';
 
@@ -26,13 +25,11 @@ class OrderManager
         EntityManagerInterface    $entityManager,
         TagAwareCacheInterface    $cache,
         AsyncService              $asyncService,
-        ExceptionHandlerInterface $exceptionHandler
     )
     {
         $this->entityManager = $entityManager;
         $this->cache = $cache;
         $this->asyncService = $asyncService;
-        $this->exceptionHandler = $exceptionHandler;
     }
 
     public function saveOrder(
@@ -57,7 +54,7 @@ class OrderManager
         $this->entityManager->persist($order);
         $this->entityManager->flush();
         $message = new CreateOrderDTO($order->getId());
-        $this->asyncService->publishToExchange(AsyncService::INVALIDATE_CACHE, $message->toAMQPMessage());
+        $this->asyncService->publishToExchange(AsyncService::CREATE_ORDER, $message->toAMQPMessage());
         return $order->getId();
     }
 
