@@ -10,6 +10,7 @@ use App\Repository\OrderRepository;
 use App\Repository\UserRepository;
 use App\Service\AsyncService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -32,6 +33,10 @@ class OrderManager
         $this->asyncService = $asyncService;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws EntityNotFoundException
+     */
     public function saveOrder(
         int    $customerId,
         int    $executorId,
@@ -45,6 +50,9 @@ class OrderManager
         /** @var User $user */
         $customer = $userRepository->find($customerId);
         $executor = $userRepository->find($executorId);
+        if ($customer === null || $executor === null) {
+            throw new EntityNotFoundException();
+        }
         $order = new Order();
         $order->setCustomer($customer);
         $order->setExecutor($executor);
@@ -58,6 +66,9 @@ class OrderManager
         return $order->getId();
     }
 
+    /**
+     * @throws EntityNotFoundException
+     */
     public function updateOrder(
         int    $orderId,
         int    $customerId,
@@ -79,6 +90,9 @@ class OrderManager
         /** @var User $user */
         $customer = $userRepository->find($customerId);
         $executor = $userRepository->find($executorId);
+        if ($customer === null || $executor === null) {
+            throw new EntityNotFoundException();
+        }
         $order->setCustomer($customer);
         $order->setExecutor($executor);
         $order->setDescription($description);
