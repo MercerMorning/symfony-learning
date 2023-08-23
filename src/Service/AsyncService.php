@@ -7,7 +7,7 @@ use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 class AsyncService
 {
     public const ADD_ORDER = 'add_order';
-    public const INVALIDATE_CACHE = 'invalidate_cache';
+    public const CREATE_ORDER = 'create_order';
 
     /** @var ProducerInterface[] */
     private array $producers;

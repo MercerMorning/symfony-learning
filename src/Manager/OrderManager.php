@@ -10,6 +10,7 @@ use App\Repository\OrderRepository;
 use App\Repository\UserRepository;
 use App\Service\AsyncService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -18,7 +19,6 @@ class OrderManager
     private EntityManagerInterface $entityManager;
     private TagAwareCacheInterface $cache;
     private AsyncService $asyncService;
-    private ExceptionHandlerInterface $exceptionHandler;
 
     private const CACHE_TAG = 'orders';
 
@@ -26,15 +26,17 @@ class OrderManager
         EntityManagerInterface    $entityManager,
         TagAwareCacheInterface    $cache,
         AsyncService              $asyncService,
-        ExceptionHandlerInterface $exceptionHandler
     )
     {
         $this->entityManager = $entityManager;
         $this->cache = $cache;
         $this->asyncService = $asyncService;
-        $this->exceptionHandler = $exceptionHandler;
     }
 
+    /**
+     * @throws \JsonException
+     * @throws EntityNotFoundException
+     */
     public function saveOrder(
         int    $customerId,
         int    $executorId,
@@ -48,6 +50,9 @@ class OrderManager
         /** @var User $user */
         $customer = $userRepository->find($customerId);
         $executor = $userRepository->find($executorId);
+        if ($customer === null || $executor === null) {
+            throw new EntityNotFoundException();
+        }
         $order = new Order();
         $order->setCustomer($customer);
         $order->setExecutor($executor);
@@ -57,10 +62,13 @@ class OrderManager
         $this->entityManager->persist($order);
         $this->entityManager->flush();
         $message = new CreateOrderDTO($order->getId());
-        $this->asyncService->publishToExchange(AsyncService::INVALIDATE_CACHE, $message->toAMQPMessage());
+        $this->asyncService->publishToExchange(AsyncService::CREATE_ORDER, $message->toAMQPMessage());
         return $order->getId();
     }
 
+    /**
+     * @throws EntityNotFoundException
+     */
     public function updateOrder(
         int    $orderId,
         int    $customerId,
@@ -82,6 +90,9 @@ class OrderManager
         /** @var User $user */
         $customer = $userRepository->find($customerId);
         $executor = $userRepository->find($executorId);
+        if ($customer === null || $executor === null) {
+            throw new EntityNotFoundException();
+        }
         $order->setCustomer($customer);
         $order->setExecutor($executor);
         $order->setDescription($description);

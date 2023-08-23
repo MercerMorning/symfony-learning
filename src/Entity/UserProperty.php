@@ -18,6 +18,14 @@ class UserProperty implements HasOwnerInterface
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
+    /**
+     * @param int|null $id
+     */
+    public function setId(?int $id): void
+    {
+        $this->id = $id;
+    }
+
     #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'properties')]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
     private User $user;
