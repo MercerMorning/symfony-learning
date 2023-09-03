@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\ManageUserPropertyDTO;
-use App\Entity\UserProperty;
+use App\Entity\Skill;
 use App\Form\Type\UserPropertyType;
 use App\Manager\UserPropertyManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -42,7 +42,7 @@ class UserPropertyController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var ManageUserPropertyDTO $userDto */
             $userPropertyDto = $form->getData();;
-            $this->userPropertyManager->saveUserPropertyFromDTO($userProperty ?? new UserProperty(), $userPropertyDto);
+            $this->userPropertyManager->saveUserPropertyFromDTO($userProperty ?? new Skill(), $userPropertyDto);
         }
 
         return $this->renderForm('manageUserProperty.html.twig', [

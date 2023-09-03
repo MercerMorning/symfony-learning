@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Order;
 use App\Entity\User;
-use App\Entity\UserProperty;
+use App\Entity\Skill;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

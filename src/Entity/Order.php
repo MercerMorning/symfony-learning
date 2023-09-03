@@ -13,20 +13,25 @@ use Gedmo\Mapping\Annotation as Gedmo;
 #[ORM\Table(name: '`order`')]
 #[ORM\Index(columns: ['customer_id'], name: 'order__customer_id__ind')]
 #[ORM\Index(columns: ['executor_id'], name: 'order__executor_id__ind')]
-class Order implements HasOwnerInterface
+#[ORM\Index(columns: ['courier_id'], name: 'order__delivery_man_id__ind')]
+class Order
 {
     #[ORM\Column(name: 'id', type: 'bigint', unique: true)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'acquisitions')]
+    #[ORM\ManyToOne(targetEntity: 'User')]
     #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'id')]
     private User $customer;
 
-    #[ORM\ManyToOne(targetEntity: 'User', inversedBy: 'executions')]
+    #[ORM\ManyToOne(targetEntity: 'User')]
     #[ORM\JoinColumn(name: 'executor_id', referencedColumnName: 'id')]
     private User $executor;
+
+    #[ORM\ManyToOne(targetEntity: 'User')]
+    #[ORM\JoinColumn(name: 'courier_id', referencedColumnName: 'id')]
+    private User $courier;
 
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     private string $description;
@@ -34,7 +39,7 @@ class Order implements HasOwnerInterface
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     private int $status;
 
-    #[ORM\Column(type: Types::DECIMAL, nullable: false, precision: 5, scale: 2)]
+    #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2, nullable: false)]
     private float $price;
 
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]

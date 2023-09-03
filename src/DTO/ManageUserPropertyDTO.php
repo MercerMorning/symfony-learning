@@ -2,7 +2,7 @@
 
 namespace App\DTO;
 
-use App\Entity\UserProperty;
+use App\Entity\Skill;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\User;
 
@@ -22,7 +22,7 @@ class ManageUserPropertyDTO
     ) {
     }
 
-    public static function fromEntity(UserProperty $userProperty): self
+    public static function fromEntity(Skill $userProperty): self
     {
         return new self(...[
             'user' => $userProperty->getUser(),

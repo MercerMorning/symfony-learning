@@ -4,7 +4,7 @@ namespace App\Tests\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Entity\User;
-use App\Entity\UserProperty;
+use App\Entity\Skill;
 use PHPUnit\Framework\TestCase;
 
 class UserPropertyTest extends TestCase
@@ -32,15 +32,15 @@ class UserPropertyTest extends TestCase
     /**
      * @dataProvider userPropertyDataProvider
      */
-    public function testToArrayReturnsCorrectValues(UserProperty $userProperty, array $expected): void
+    public function testToArrayReturnsCorrectValues(Skill $userProperty, array $expected): void
     {
         $actual = $userProperty->toArray();
         static::assertSame($expected, $actual);
     }
 
-    private function makeUserProperty(array $data): UserProperty
+    private function makeUserProperty(array $data): Skill
     {
-        $userProperty = new UserProperty();
+        $userProperty = new Skill();
         $userProperty->setId($data['id']);
         $userProperty->setName($data['name']);
         $userProperty->setValue($data['value']);

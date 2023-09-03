@@ -3,7 +3,7 @@
 namespace App\Controller\Api\v1\Admin;
 
 use App\Entity\User;
-use App\Entity\UserProperty;
+use App\Entity\Skill;
 use App\Manager\UserManager;
 use App\Manager\UserPropertyManager;
 use App\Security\Voter\CanInteractToUserPropertyVoter;
@@ -58,12 +58,12 @@ class UserPropertyController extends AbstractController
         $users = $this->userPropertyManager->getUserProperties($page ?? self::DEFAULT_PAGE, $perPage ?? self::DEFAULT_PER_PAGE);
         $code = empty($users) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK;
 
-        return new JsonResponse(['userProperties' => array_map(static fn(UserProperty $user) => $user->toArray(), $users)], $code);
+        return new JsonResponse(['userProperties' => array_map(static fn(Skill $user) => $user->toArray(), $users)], $code);
     }
 
     #[Route(path: '/{user_property_id}', requirements: ['user_property_id' => '\d+'], methods: ['DELETE'])]
     #[Entity('userProperty', expr: 'repository.find(user_property_id)')]
-    public function deleteUserPropertyAction(UserProperty $userProperty): Response
+    public function deleteUserPropertyAction(Skill $userProperty): Response
     {
         $result = $this->userPropertyManager->deleteUserProperty($userProperty);
 

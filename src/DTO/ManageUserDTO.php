@@ -3,7 +3,7 @@
 namespace App\DTO;
 
 use App\Entity\Order;
-use App\Entity\UserProperty;
+use App\Entity\Skill;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -41,14 +41,14 @@ class ManageUserDTO
             'password' => $user->getPassword(),
             'roles' => $user->getRoles(),
             'properties' => array_map(
-                static function (UserProperty $userProperty) {
+                static function (Skill $userProperty) {
                     return [
                         'id' => $userProperty->getId(),
                         'name' => $userProperty->getName(),
                         'value' => $userProperty->getValue(),
                     ];
                 },
-                $user->getProperties()
+                $user->getSkills()
             ),
             'acquisitions' => array_map(
                 static function (Order $order) {
@@ -59,7 +59,7 @@ class ManageUserDTO
                         'status' => $order->getStatus(),
                     ];
                 },
-                $user->getProperties()
+                $user->getSkills()
             ),
             'executions' => array_map(
                 static function (Order $order) {

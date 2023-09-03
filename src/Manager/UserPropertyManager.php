@@ -4,7 +4,7 @@ namespace App\Manager;
 
 use App\DTO\ManageUserPropertyDTO;
 use App\Entity\User;
-use App\Entity\UserProperty;
+use App\Entity\Skill;
 use App\Repository\UserPropertyRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,7 +24,7 @@ class UserPropertyManager
         $userRepository = $this->entityManager->getRepository(User::class);
         /** @var User $user */
         $user = $userRepository->find($userId);
-        $userProperty = new UserProperty();
+        $userProperty = new Skill();
         $userProperty->setUser($user);
         $userProperty->setName($name);
         $userProperty->setValue($value);
@@ -33,7 +33,7 @@ class UserPropertyManager
         return $userProperty->getId();
     }
 
-    public function saveUserPropertyFromDTO(UserProperty $userProperty, ManageUserPropertyDTO $manageUserPropertyDTO): ?int
+    public function saveUserPropertyFromDTO(Skill $userProperty, ManageUserPropertyDTO $manageUserPropertyDTO): ?int
     {
         $userProperty->setUser($manageUserPropertyDTO->user);
         $userProperty->setName($manageUserPropertyDTO->name);
@@ -46,8 +46,8 @@ class UserPropertyManager
     public function updateUserProperty(int $userPropertyId, string $name, string $value): bool
     {
         /** @var UserPropertyRepository $userPropertyRepository */
-        $userPropertyRepository = $this->entityManager->getRepository(UserProperty::class);
-        /** @var UserProperty $userProperty */
+        $userPropertyRepository = $this->entityManager->getRepository(Skill::class);
+        /** @var Skill $userProperty */
         $userProperty = $userPropertyRepository->find($userPropertyId);
         if ($userProperty === null) {
             return false;
@@ -59,7 +59,7 @@ class UserPropertyManager
         return true;
     }
 
-    public function deleteUserProperty(UserProperty $userProperty): bool
+    public function deleteUserProperty(Skill $userProperty): bool
     {
         $this->entityManager->remove($userProperty);
         $this->entityManager->flush();
@@ -73,15 +73,15 @@ class UserPropertyManager
     public function getUserProperties(int $page, int $perPage): array
     {
         /** @var UserRepository $userRepository */
-        $userPropertyRepository = $this->entityManager->getRepository(UserProperty::class);
+        $userPropertyRepository = $this->entityManager->getRepository(Skill::class);
 
         return $userPropertyRepository->getUserProperties($page, $perPage);
     }
 
-    public function getUserPropertyById(int $id): ?UserProperty
+    public function getUserPropertyById(int $id): ?Skill
     {
         /** @var UserPropertyRepository $userPropertyRepository */
-        $userPropertyRepository = $this->entityManager->getRepository(UserProperty::class);
+        $userPropertyRepository = $this->entityManager->getRepository(Skill::class);
 
         return $userPropertyRepository->find($id);
     }

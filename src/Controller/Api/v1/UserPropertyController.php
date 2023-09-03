@@ -3,7 +3,7 @@
 namespace App\Controller\Api\v1;
 
 use App\Entity\User;
-use App\Entity\UserProperty;
+use App\Entity\Skill;
 use App\Manager\UserManager;
 use App\Manager\UserPropertyManager;
 use App\Security\Voter\CanInteractToUserPropertyVoter;
@@ -52,7 +52,7 @@ class UserPropertyController extends AbstractController
 
     #[Route(path: '/{user_property_id}', requirements: ['user_property_id' => '\d+'], methods: ['DELETE'])]
     #[Entity('userProperty', expr: 'repository.find(user_property_id)')]
-    public function deleteUserPropertyAction(UserProperty $userProperty): Response
+    public function deleteUserPropertyAction(Skill $userProperty): Response
     {
         if (!$this->authorizationChecker->isGranted('delete_entity', $userProperty)) {
             return new JsonResponse('Access denied', Response::HTTP_FORBIDDEN);

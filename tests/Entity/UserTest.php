@@ -4,7 +4,7 @@ namespace App\Tests\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Entity\User;
-use App\Entity\UserProperty;
+use App\Entity\Skill;
 use PHPUnit\Framework\TestCase;
 
 class UserTest extends TestCase
@@ -109,13 +109,13 @@ class UserTest extends TestCase
         $user->setLogin($data['login']);
         $user->setPassword($data['password']);
         $user->setRoles($data['roles']);
-        $user->setProperties($data['properties']);
+        $user->setSkills($data['properties']);
         return $user;
     }
 
-    private function makeProperty(array $data): UserProperty
+    private function makeProperty(array $data): Skill
     {
-        $userProperty = new UserProperty();
+        $userProperty = new Skill();
         $userProperty->setId($data['id']);
         $userProperty->setName($data['name']);
         $userProperty->setValue($data['value']);
