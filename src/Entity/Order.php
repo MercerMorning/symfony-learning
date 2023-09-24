@@ -45,6 +45,9 @@ class Order implements HasOwnerInterface
     #[Gedmo\Timestampable(on: 'update')]
     private DateTime $updatedAt;
 
+    #[ORM\ManyToOne(targetEntity: 'Measurement', inversedBy: 'orders')]
+    private Measurement $measurement;
+
     public function getId(): int
     {
         return $this->id;
@@ -173,5 +176,21 @@ class Order implements HasOwnerInterface
     public function getOwner(): User
     {
         return $this->customer;
+    }
+
+    /**
+     * @return Measurement
+     */
+    public function getMeasurement(): Measurement
+    {
+        return $this->measurement;
+    }
+
+    /**
+     * @param Measurement $measurement
+     */
+    public function setMeasurement(Measurement $measurement): void
+    {
+        $this->measurement = $measurement;
     }
 }

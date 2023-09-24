@@ -1,0 +1,14 @@
+type Mutation {
+  createMeasurement(input: MeasurementInput!): Measurement!
+}
+
+input MeasurementInput {
+  title: String!
+  abbreviation: String!
+}
+
+type Measurement {
+     id: ID!
+     title: String!
+     abbreviation: String!
+}
