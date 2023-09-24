@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-#[Route(path: 'api/v1/order')]
+    #[Route(path: 'api/v1/order')]
 class OrderController extends AbstractController
 {
     private OrderManager $orderManager;

@@ -1,0 +1,4 @@
+type RootQuery {
+    measurement(id: ID!): Measurement
+    measurements: [Measurement!]!
+}

@@ -39,5 +39,8 @@ services:
             - [ 'registerStrategy', [ 'sync', '@App\Strategy\SyncSaveOrderStrategy' ] ]
             - [ 'registerStrategy', [ 'async', '@App\Strategy\AsyncSaveOrderStrategy' ] ]
 
+    App\Resolver\CustomResolverMap:
+        tags:
+            - { name: overblog_graphql.resolver_map, schema: default }
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

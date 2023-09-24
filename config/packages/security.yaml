@@ -19,6 +19,9 @@ security:
         register:
             pattern: ^/api/v1/register
             security: false
+        graphql:
+            pattern: ^/graphql
+            security: false
         main:
             lazy: true
             provider: app_user_provider
