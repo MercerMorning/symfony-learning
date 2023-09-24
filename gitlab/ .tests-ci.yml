@@ -1,0 +1,29 @@
+.test_config:
+  before_script:
+    - |-
+      for i in `seq 60`
+      do
+        if docker exec symfony-app-unit bash
+        then
+          break
+        else
+          echo waiting
+          sleep 5
+        fi
+      done
+
+psalm:
+  extends: .test_config
+  image: docker:20.10.16
+  stage: tests
+  script:
+    - docker exec symfony-app-unit vendor/bin/psalm --no-cache
+  allow_failure: true
+
+unit tests:
+  extends: .test_config
+  image: docker:20.10.16
+  stage: tests
+  script:
+    - docker exec symfony-app-unit php bin/phpunit
+  allow_failure: true

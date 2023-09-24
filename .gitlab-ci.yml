@@ -1,0 +1,10 @@
+include:
+  - '/gitlab/.build-ci.yml'
+  - '/gitlab/.tests-ci.yml'
+
+stages:
+  - pre-build
+  - build
+  - tests
+  - deploy
+  - cleanup

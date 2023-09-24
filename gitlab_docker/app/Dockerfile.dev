@@ -1,0 +1,104 @@
+# Основной образ с PHP и Composer
+FROM php:8.1-fpm AS php-fpm
+
+
+ARG MPDECIMAL_VERSION=2.5.1
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# Установка зависимостей
+RUN apt-get update -yqq && apt-get upgrade -yqq
+
+RUN apt-get update && apt-get install -y nginx supervisor 
+
+# Установка зависимостей
+RUN apt-get update && apt-get install -y \
+    librabbitmq-dev \
+    libssh-dev \
+    && docker-php-source extract \
+    && docker-php-ext-install sockets \
+    && docker-php-source delete
+
+# Установка PECL и AMQP
+RUN pecl install amqp \
+    && docker-php-ext-enable amqp
+
+RUN set -xe \
+  && apt-get update && apt-get install -y \
+  build-essential \
+  libtool\
+  autoconf \
+  g++ \
+  make \
+  gcc \
+  pkg-config \
+  libpq-dev \
+  libonig-dev \
+  libfreetype6-dev \
+  libjpeg62-turbo-dev \
+  libpng-dev \
+  git \
+  zip \
+  curl \
+  sudo \
+  unzip \
+  && docker-php-ext-configure gd --with-freetype --with-jpeg \
+  && docker-php-ext-install -j$(nproc) gd
+
+RUN set -eux; \
+  cd /tmp/; \
+  curl -sSL -O https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-${MPDECIMAL_VERSION}.tar.gz; \
+  tar -xzf mpdecimal-${MPDECIMAL_VERSION}.tar.gz; \
+  cd mpdecimal-${MPDECIMAL_VERSION}; \
+  ./configure; \
+  make; \
+  make install \
+  ;
+
+RUN docker-php-ext-install pdo pdo_pgsql
+
+# Очистка кеша
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* libmpdec
+
+# Установка расширений
+RUN docker-php-ext-install mbstring exif pcntl bcmath gd ctype
+
+# Установка Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Установка рабочего каталога в контейнере
+WORKDIR /var/www
+
+# Копирование текущего каталога в контейнер
+COPY .. .
+
+# Копирование composer.lock и composer.json
+# COPY composer.lock composer.json /var/www/
+#
+## Установка всех зависимостей
+
+# Копирование всего проекта в рабочий каталог
+COPY .. /var/www
+COPY ./docker/app/start.sh /start.sh
+COPY docker/docker/nginx/conf.d/app.dev.conf /etc/nginx/conf.d/default.conf
+COPY docker/docker/supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+
+# Предоставление разрешений на папку
+RUN chown -R www-data:www-data /var/www/
+RUN chmod -R a+wrx /var/www
+
+
+RUN composer install
+
+RUN php bin/console lexik:jwt:generate-keypair
+
+
+CMD ["/usr/bin/supervisord"]
+# CMD sh /start.sh 
+
+
+
+EXPOSE 9023
+
+# Экспозиция порта
