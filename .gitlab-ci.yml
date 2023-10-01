@@ -1,6 +1,7 @@
 include:
-  - '/gitlab/.build-ci.yml'
+#  - '/gitlab/.build-ci.yml'
   - '/gitlab/.tests-ci.yml'
+  - '/gitlab/.deploy.yml'
 
 stages:
   - pre-build

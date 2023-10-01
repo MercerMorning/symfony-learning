@@ -1,0 +1,16 @@
+deploy dev:
+  stage: deploy
+  environment:
+    name: server
+    url: $SERVER
+  script:
+    - ssh $SSH_USER@$SERVER "cd /var/www/demo &&
+      git clone https://github.com/MercerMorning/symfony-learning.git $DIR &&
+      cp .env.gitlab_development .env &&
+      cp .env.gitlab_development .env.dev &&
+      sudo chown www-data:www-data $DIR -R &&
+      cd $DIR &&
+      docker compose -p symfony_dev -f ./gitlab_docker/docker-compose.dev.yml up --build -d"
+
+  only:
+    - dev
