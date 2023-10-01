@@ -1,0 +1,1 @@
+php bin/console do:mi:mi --no-interaction && php bin/console d:f:l --append && php-fpm;

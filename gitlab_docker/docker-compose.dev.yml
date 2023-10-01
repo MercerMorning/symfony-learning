@@ -1,0 +1,50 @@
+version: "3"
+services:
+  symfony-app-dev:
+    build:
+      context: ../
+      dockerfile: ./gitlab_docker/app/Dockerfile.dev
+    image: symfony-app
+    container_name: symfony-app-dev
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    depends_on:
+      - symfony-database-dev
+    ports:
+      - 9023
+    networks:
+      - ssl-network
+
+  symfony-database-dev:
+    image: postgres:15
+    container_name: symfony-database-dev
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 9999:5432
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: secret
+    networks:
+      - ssl-network
+
+  symfony-redis-dev:
+    build: ./redis
+    container_name: symfony-redis-dev
+    ports:
+      - "6379"
+    networks:
+      - ssl-network
+
+volumes:
+  symfony_data:
+
+
+networks:
+  ssl-network:
+    external: true

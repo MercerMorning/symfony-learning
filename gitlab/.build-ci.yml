@@ -1,0 +1,17 @@
+build unit:
+  image: docker:20.10.16
+  stage: build
+  script:
+    - cp .env.unit .env
+    - cp .env.unit .env.dev
+    - docker compose -p symfony_unit -f ./gitlab_docker/docker-compose.unit.yml up --build -d
+
+build dev:
+  image: docker:20.10.16
+  stage: build
+  script:
+    - cp .env.gitlab_development .env
+    - cp .env.gitlab_development .env.dev
+    - docker compose -p symfony_dev -f ./gitlab_docker/docker-compose.dev.yml up --build -d
+  only:
+    - dev
